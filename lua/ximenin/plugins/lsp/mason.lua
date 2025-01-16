@@ -35,7 +35,6 @@ return {
             "prismals",
             "pyright",
             "rust_analyzer",
-            "prismals",
          },
       })
 
