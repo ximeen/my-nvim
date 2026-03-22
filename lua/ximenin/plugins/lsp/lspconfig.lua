@@ -7,25 +7,18 @@ return {
       { "folke/neodev.nvim", opts = {} },
    },
    config = function()
-      -- import lspconfig plugin
       local lspconfig = require("lspconfig")
 
-      -- import mason_lspconfig plugin
       local mason_lspconfig = require("mason-lspconfig")
 
-      -- import cmp-nvim-lsp plugin
       local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
-      local keymap = vim.keymap -- for conciseness
-
+      local keymap = vim.keymap
       vim.api.nvim_create_autocmd("LspAttach", {
          group = vim.api.nvim_create_augroup("UserLspConfig", {}),
          callback = function(ev)
-            -- Buffer local mappings.
-            -- See `:help vim.lsp.*` for documentation on any of the below functions
             local opts = { buffer = ev.buf, silent = true }
 
-            -- set keybinds
             opts.desc = "Show LSP references"
             keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
 
@@ -69,65 +62,68 @@ return {
 
       local capabilities = cmp_nvim_lsp.default_capabilities()
 
-      local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+      local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
       for type, icon in pairs(signs) do
          local hl = "DiagnosticSign" .. type
          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
       end
 
-      mason_lspconfig.setup_handlers({
-         function(server_name)
-            lspconfig[server_name].setup({
-               capabilities = capabilities,
-            })
-         end,
-         ["graphql"] = function()
-            -- configure graphql language server
-            lspconfig["graphql"].setup({
-               capabilities = capabilities,
-               filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
-            })
-         end,
-         ["emmet_ls"] = function()
-            -- configure emmet language server
-            lspconfig["emmet_ls"].setup({
-               capabilities = capabilities,
-               filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
-            })
-         end,
-         ["lua_ls"] = function()
-            lspconfig["lua_ls"].setup({
-               capabilities = capabilities,
-               settings = {
-                  Lua = {
-                     diagnostics = {
-                        globals = { "vim" },
-                     },
-                     completion = {
-                        callSnippet = "Replace",
-                     },
-                  },
-               },
-            })
-         end,
-         ["rust_analyzer"] = function()
-            lspconfig["rust_analyzer"].setup({
-               capabilities = capabilities,
-               settings = {
-                  ["rust-analyzer"] = {
-                     checkOnSave = {
-                        command = "clippy",
-                     },
-                     cargo = {
-                        allFeatures = true,
-                     },
-                     procMacro = {
-                        enable = true,
+      -- MUDANÇA AQUI: setup_handlers agora vai dentro do setup()
+      mason_lspconfig.setup({
+         handlers = {
+            function(server_name)
+               lspconfig[server_name].setup({
+                  capabilities = capabilities,
+               })
+            end,
+            ["graphql"] = function()
+               -- configure graphql language server
+               lspconfig["graphql"].setup({
+                  capabilities = capabilities,
+                  filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
+               })
+            end,
+            ["emmet_ls"] = function()
+               -- configure emmet language server
+               lspconfig["emmet_ls"].setup({
+                  capabilities = capabilities,
+                  filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
+               })
+            end,
+            ["lua_ls"] = function()
+               lspconfig["lua_ls"].setup({
+                  capabilities = capabilities,
+                  settings = {
+                     Lua = {
+                        diagnostics = {
+                           globals = { "vim" },
+                        },
+                        completion = {
+                           callSnippet = "Replace",
+                        },
                      },
                   },
-               },
-            })
-         end,
+               })
+            end,
+            ["rust_analyzer"] = function()
+               lspconfig["rust_analyzer"].setup({
+                  capabilities = capabilities,
+                  settings = {
+                     ["rust-analyzer"] = {
+                        checkOnSave = {
+                           command = "clippy",
+                        },
+                        cargo = {
+                           allFeatures = true,
+                        },
+                        procMacro = {
+                           enable = true,
+                        },
+                     },
+                  },
+               })
+            end,
+         },
       })
    end,
 }
